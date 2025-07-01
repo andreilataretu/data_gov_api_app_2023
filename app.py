@@ -1,58 +1,51 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
-# --- CONFIGURARE CĂI LOCALE ---
+# Căile locale către fișiere
+CSV_PATH = "data/web_bl_bs_sl_an2023.csv"
 TXT_PATH = "data/web_bl_bs_sl_an2023.txt"
-CSV_LEGEND_PATH = "data/web_bl_bs_sl_an2023.csv"
 
-st.set_page_config(page_title="Situații Financiare 2023", layout="wide")
-st.title("🔍 Situații Financiare 2023 – Căutare după CUI, Denumire, CAEN")
-
-# --- ÎNCĂRCARE DATE ---
-@st.cache_data(show_spinner=True)
+@st.cache_data(show_spinner="Se încarcă datele...")
 def incarca_date_si_legenda():
-    # Citește legenda coloanelor din CSV
-    df_raw = pd.read_csv(CSV_LEGEND_PATH, header=None, names=["linie"], encoding="utf-8")
-    df_legend_split = df_raw["linie"].str.split(";", n=1, expand=True)
-    df_legend_split.columns = ["explicatie", "cod"]
-    legend_dict = dict(zip(df_legend_split["cod"].str.strip(), df_legend_split["explicatie"].str.strip()))
-
-    # Citește fișierul .txt cu antet propriu
+    # Încarcă datele din fișierul .txt
     df_data = pd.read_csv(TXT_PATH, sep=";", dtype=str, low_memory=False)
+    df_data.columns = df_data.columns.str.strip()
 
+    # Încarcă legenda din fișierul .csv
+    df_legend_raw = pd.read_csv(CSV_PATH, sep=";", header=None, names=["Label"])
+    legend_dict = {}
+    for row in df_legend_raw["Label"]:
+        if ";" in row:
+            descriere, cod = row.split(";", 1)
+            legend_dict[cod.strip()] = descriere.strip()
     return df_data, legend_dict
 
+st.title("🔍 Căutare situații financiare 2023")
 
-df_data, legend_dict = incarca_date_si_legenda()
+# Câmpuri de căutare
+cui = st.text_input("Caută după CUI:")
+caen = st.text_input("Caută după cod CAEN:")
 
-# --- FILTRE CĂUTARE ---
-with st.sidebar:
-    st.subheader("🔎 Filtre de căutare")
-    cui = st.text_input("Cod fiscal (CUI)").strip()
-    denumire = st.text_input("Denumire firmă").strip().lower()
-    caen = st.text_input("Cod CAEN").strip()
+# Încărcare date
+df, legenda = incarca_date_si_legenda()
 
-# --- APLICĂ FILTRE ---
-rezultate = df_data.copy()
+# Curățare antet
+df.columns = df.columns.str.strip()
 
+# Căutare
+rezultate = df.copy()
 if cui:
-    rezultate = rezultate[rezultate["CUI"].str.strip() == cui]
-
-if denumire:
-    rezultate = rezultate[rezultate["Denumire entitate"].str.lower().str.contains(denumire, na=False)]
-
+    rezultate = rezultate[rezultate["CUI"].str.strip() == cui.strip()]
 if caen:
-    rezultate = rezultate[rezultate["CAEN"].str.strip() == caen]
+    rezultate = rezultate[rezultate["CAEN"].str.strip() == caen.strip()]
 
-# --- AFIȘARE DATE FILTRATE ---
-st.markdown("## 📄 Rezultate")
-if rezultate.empty:
-    st.warning("⚠️ Nicio înregistrare găsită.")
+# Afișare rezultate
+if not rezultate.empty:
+    st.subheader("📊 Rezultate găsite:")
+    st.dataframe(rezultate)
+
+    st.subheader("📘 Legendă coloane:")
+    for cod, descriere in legenda.items():
+        st.markdown(f"**{cod}**: {descriere}")
 else:
-    st.success(f"✅ {len(rezultate)} înregistrare(gă) găsite.")
-    st.dataframe(rezultate, use_container_width=True)
-
-# --- AFIȘARE LEGENDĂ ---
-with st.expander("📘 Legenda coloanelor disponibile în fișier"):
-    df_legenda = pd.DataFrame(list(legend_dict.items()), columns=["Cod coloană", "Semnificație"])
-    st.dataframe(df_legenda, use_container_width=True)
+    st.warning("Nicio înregistrare găsită.")
