@@ -2,65 +2,60 @@ import pandas as pd
 import streamlit as st
 
 # Căile locale către fișiere
-DATA_PATH = "data/web_bl_bs_sl_an2023_convertit.csv"  # datele reale transformate din TXT
-CSV_PATH  = "data/web_bl_bs_sl_an2023.csv"            # legenda originală
+CSV_PATH = "data/web_bl_bs_sl_an2023.csv"                 # legenda
+DATA_PATH = "data/web_bl_bs_sl_an2023_convertit.csv"      # datele reale
 
-st.set_page_config(page_title="Situații Financiare 2023", layout="wide")
-st.title("🔍 Caută firme după CUI & CAEN")
-
-# === Încărcare date (în cache) ===
 @st.cache_data(show_spinner="Se încarcă datele...")
-def load_data():
-    # autodetectăm separatorul (`,` sau `;`)
-    df = pd.read_csv(DATA_PATH, sep=None, engine="python", dtype=str, low_memory=False)
-    df.columns = df.columns.str.strip()
-    return df
+def incarca_date_si_legenda():
+    # 1) Încarcă datele reale, cu autodetectare de separator
+    df_data = pd.read_csv(DATA_PATH, sep=None, engine='python', dtype=str)
+    df_data.columns = df_data.columns.str.strip()
 
-# === Încărcare legendă (în cache) ===
-@st.cache_data
-def load_legend():
-    # citim două coloane: explicatie + cod
-    df_leg = pd.read_csv(CSV_PATH, sep=";", header=None, dtype=str, low_memory=False)
-    df_leg.columns = ["explicatie", "cod"]
-    # eliminăm eventuale spații
-    df_leg["explicatie"] = df_leg["explicatie"].str.strip()
-    df_leg["cod"]       = df_leg["cod"].str.strip()
-    return df_leg
+    # 2) Încarcă legenda: fiecare rând "Explicație;Cod"
+    df_legend_raw = pd.read_csv(CSV_PATH, sep=";", header=None, names=["Label"], dtype=str)
+    legend_dict = {}
+    for line in df_legend_raw["Label"].dropna():
+        if ";" in line:
+            descriere, cod = line.split(";", 1)
+            legend_dict[cod.strip()] = descriere.strip()
 
-df   = load_data()
-leg  = load_legend()
+    return df_data, legend_dict
 
-# === Debug: afișăm antetul detectat ===
-st.sidebar.subheader("🛠 Debug antet")
-st.sidebar.write(df.columns.tolist())
+# TITLU
+st.title("🔍 Căutare situații financiare 2023")
 
-# === Filtre de căutare ===
-st.sidebar.subheader("🔎 Filtre")
-cui  = st.sidebar.text_input("CUI exact")
-caen = st.sidebar.text_input("CAEN exact")
+# INPUT-URI
+cui = st.text_input("Caută după CUI:")
+caen = st.text_input("Caută după cod CAEN:")
 
-# === Aplicare filtre ===
-rez = df
+# ÎNCĂRCARE DATE + LEGENDA
+df, legenda = incarca_date_si_legenda()
+
+# Verifică că există coloanele obligatorii
+mandatory = ["CUI", "CAEN"]
+missing = [col for col in mandatory if col not in df.columns]
+if missing:
+    st.error(f"Lipsește coloana(e): {', '.join(missing)} din fișierul de date.")
+    st.write("Coloane disponibile:", df.columns.tolist())
+    st.stop()
+
+# FILTRARE
+rezultate = df
 if cui:
-    if "CUI" in rez.columns:
-        rez = rez[rez["CUI"].str.strip() == cui.strip()]
-    else:
-        st.error("⚠️ Coloana 'CUI' nu există!")
-
+    rezultate = rezultate[rezultate["CUI"].str.strip() == cui.strip()]
 if caen:
-    if "CAEN" in rez.columns:
-        rez = rez[rez["CAEN"].str.strip() == caen.strip()]
-    else:
-        st.error("⚠️ Coloana 'CAEN' nu există!")
+    rezultate = rezultate[rezultate["CAEN"].str.strip() == caen.strip()]
 
-# === Afișare rezultate ===
-st.subheader("📋 Rezultate")
-if rez.empty:
-    st.warning("Nicio înregistrare găsită.")
+# AFIȘARE REZULTATE
+st.subheader("📄 Rezultate")
+if rezultate.empty:
+    st.warning("⚠️ Nicio înregistrare găsită.")
 else:
-    st.success(f"{len(rez)} înregistrare găsită.")
-    st.dataframe(rez, use_container_width=True)
+    st.success(f"✅ {len(rezultate)} înregistrare(gă) găsită(e).")
+    st.dataframe(rezultate, use_container_width=True)
 
-# === Afișare legendă ===
-st.subheader("📘 Legenda coloanelor")
-st.dataframe(leg.set_index("cod"), use_container_width=True)
+    # AFIȘARE LEGENDA
+    st.subheader("📘 Legenda coloanelor")
+    df_legenda = pd.DataFrame.from_dict(legenda, orient="index", columns=["Descriere"])
+    df_legenda.index.name = "Cod coloană"
+    st.dataframe(df_legenda, use_container_width=True)
