@@ -7,7 +7,7 @@ DATA_PATH = "data/web_bl_bs_sl_an2023_convertit.csv"  # datele reale
 
 @st.cache_data(show_spinner="Se încarcă datele...")
 def incarca_date_si_legenda():
-    df_data = pd.read_csv("data/web_bl_bs_sl_an2023_convertit.csv", sep=";", dtype=str)
+    df_data = pd.read_csv("data/web_bl_bs_sl_an2023_convertit.csv", sep=None, engine='python', dtype=str)
     df_data.columns = df_data.columns.str.strip()
 
     if "CUI" not in df_data.columns:
