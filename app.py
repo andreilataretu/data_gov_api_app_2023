@@ -2,16 +2,14 @@ import pandas as pd
 import streamlit as st
 
 # Căile locale către fișiere
-CSV_PATH = "data/web_bl_bs_sl_an2023.csv"
-TXT_PATH = "data/web_bl_bs_sl_an2023.txt"
+CSV_PATH = "data/web_bl_bs_sl_an2023.csv"  # legenda
+DATA_PATH = "data/web_bl_bs_sl_an2023_convertit.csv"  # datele reale
 
 @st.cache_data(show_spinner="Se încarcă datele...")
 def incarca_date_si_legenda():
-    # Încarcă datele din fișierul .txt
-    df_data = pd.read_csv(TXT_PATH, sep=";", dtype=str, low_memory=False)
+    df_data = pd.read_csv(DATA_PATH, sep=";", dtype=str, low_memory=False)
     df_data.columns = df_data.columns.str.strip()
 
-    # Încarcă legenda din fișierul .csv
     df_legend_raw = pd.read_csv(CSV_PATH, sep=";", header=None, names=["Label"])
     legend_dict = {}
     for row in df_legend_raw["Label"]:
