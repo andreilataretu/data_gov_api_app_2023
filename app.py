@@ -11,16 +11,17 @@ st.title("🔍 Situații Financiare 2023 – Căutare după CUI, Denumire, CAEN"
 # --- ÎNCĂRCARE DATE ---
 @st.cache_data(show_spinner=True)
 def incarca_date_si_legenda():
-    # Datele efective
-    df_data = pd.read_csv(TXT_PATH, sep=";", dtype=str, low_memory=False)
-
-    # Legenda
+    # Citește legenda coloanelor din CSV
     df_raw = pd.read_csv(CSV_LEGEND_PATH, header=None, names=["linie"], encoding="utf-8")
     df_legend_split = df_raw["linie"].str.split(";", n=1, expand=True)
     df_legend_split.columns = ["explicatie", "cod"]
     legend_dict = dict(zip(df_legend_split["cod"].str.strip(), df_legend_split["explicatie"].str.strip()))
 
+    # Citește fișierul .txt cu antet propriu
+    df_data = pd.read_csv(TXT_PATH, sep=";", dtype=str, low_memory=False)
+
     return df_data, legend_dict
+
 
 df_data, legend_dict = incarca_date_si_legenda()
 
