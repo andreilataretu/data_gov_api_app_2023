@@ -1,24 +1,26 @@
-# 📊 Aplicație: Vizualizator Situații Financiare 2023 (data.gov.ro)
+# 📊 Situații Financiare 2023 - Aplicație Streamlit
 
-Această aplicație Streamlit permite accesarea și explorarea ușoară a fișierelor CSV publicate pe [data.gov.ro](https://data.gov.ro/dataset/situatii_financiare_2024), fără a le descărca manual sau a le încărca integral în memorie.
+Această aplicație permite căutarea în situațiile financiare publice ale firmelor din România (2023)  
+folosind date oficiale din [data.gov.ro](https://data.gov.ro/).
 
-## ✅ Funcționalități principale
+## 🔍 Funcționalități
 
-- 👁️ Previzualizare rapidă (primele 1000 de rânduri din fiecare fișier)
-- 🔍 Căutare eficientă după:
-  - Cod fiscal (CIF)
-  - Denumire firmă (parțial)
-- 📊 Agregare după Cod CAEN:
-  - Număr de firme
-  - Sumă cifră de afaceri
-- 📁 Gestionarea fișierelor mari (citire în bucăți – `chunksize`)
+- Căutare după **Cod Fiscal (CUI)**
+- Căutare după **Denumire firmă** (parțială sau completă)
+- Căutare după **Cod CAEN**
+- Afișarea rezultatelor într-un tabel interactiv
+- Rulare online pe Streamlit Cloud
 
----
+## 📦 Tehnologii folosite
 
-## ▶️ Rulare locală
+- Python
+- [Streamlit](https://streamlit.io)
+- Pandas
+- Fișier CSV oficial publicat de ANAF pe [data.gov.ro](https://data.gov.ro/)
 
-### 1. Clonează repo-ul:
+## 🚀 Rulare locală
 
+1. Clonează acest repo:
 ```bash
-git clone https://github.com/USERNAME/REPO-NAME.git
-cd REPO-NAME
+git clone https://github.com/USERNAME/numele-tau-repo.git
+cd numele-tau-repo
