@@ -3,9 +3,9 @@ import pandas as pd
 
 st.set_page_config(page_title="Căutare avansată firme", layout="wide")
 
-st.title("🔎 Căutare avansată în Situații Financiare 2024")
+st.title("🔎 Căutare avansată în Situații Financiare 2023")
 st.markdown("""
-Aplicație pentru căutarea firmelor în fișierul financiar publicat pe [data.gov.ro](https://data.gov.ro/dataset/d3caacb6-2c08-445e-94e6-8d36d00ab250/resource/b9f399d8-b641-4a23-9de7-a1dd4427b4b0/download/web_bl_bs_sl_an2024.csv)
+Aplicație pentru căutarea firmelor în fișierul financiar publicat pe [data.gov.ro](https://data.gov.ro/dataset/7861a98f-4d5c-4faa-90d4-8e934ebd1782/resource/2de79441-0db1-468d-9e7e-ebc9b0f3ff17/download/web_bl_bs_sl_an2023.csv)
 
 ---
 
