@@ -55,7 +55,7 @@ else:
     st.dataframe(rezultate, use_container_width=True)
 
     # AFIȘARE LEGENDA
-    st.subheader("📘 Legenda coloanelor")
-    df_legenda = pd.DataFrame.from_dict(legenda, orient="index", columns=["Descriere"])
-    df_legenda.index.name = "Cod coloană"
-    st.dataframe(df_legenda, use_container_width=True)
+    # st.subheader("📘 Legenda coloanelor")
+    # df_legenda = pd.DataFrame.from_dict(legenda, orient="index", columns=["Descriere"])
+    # df_legenda.index.name = "Cod coloană"
+    # st.dataframe(df_legenda, use_container_width=True)
