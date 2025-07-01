@@ -7,8 +7,15 @@ DATA_PATH = "data/web_bl_bs_sl_an2023_convertit.csv"  # datele reale
 
 @st.cache_data(show_spinner="Se încarcă datele...")
 def incarca_date_si_legenda():
-    df_data = pd.read_csv(DATA_PATH, sep=";", dtype=str, low_memory=False)
+    df_data = pd.read_csv("data/web_bl_bs_sl_an2023_convertit.csv", sep=";", dtype=str)
     df_data.columns = df_data.columns.str.strip()
+
+    if "CUI" not in df_data.columns:
+        st.error("Coloana 'CUI' nu există în fișierul CSV.")
+        st.write(df_data.columns.tolist())  # vezi ce e greșit
+        st.stop()
+
+    rezultate = df_data[df_data["CUI"].str.strip() == cui_input.strip()]
 
     df_legend_raw = pd.read_csv(CSV_PATH, sep=";", header=None, names=["Label"])
     legend_dict = {}
